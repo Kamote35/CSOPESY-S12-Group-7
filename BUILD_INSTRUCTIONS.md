@@ -118,7 +118,7 @@ Copy-Item C:\msys64\mingw64\bin\libwinpthread-1.dll .
 3. Type `screen -ls` to list all processes
 4. Type `screen -s <name>` to create and attach to a new process
 5. Type `screen -r <name>` to reattach to an existing process
-6. Type `report-util` to generate a report to `csopesy-log.txt`
+6. Type `report-util` to generate a report to `os-log.txt`
 7. Type `scheduler-stop` to stop the scheduler
 8. Type `exit` to quit
 
