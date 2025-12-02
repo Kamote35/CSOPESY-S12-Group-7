@@ -78,13 +78,13 @@ config.txt
 No DLLs needed - produces a standalone executable.
 
 ```powershell
-g++ -std=c++17 -static main.cpp ConfigLoader.cpp Process.cpp Scheduler.cpp ConsoleManager.cpp -o csopesy_emulator.exe
+g++ -std=c++17 -static main.cpp ConfigLoader.cpp Process.cpp Scheduler.cpp ConsoleManager.cpp -o os_emulator.exe
 ```
 
 Run:
 
 ```powershell
-.\csopesy_emulator.exe
+.\os_emulator.exe
 ```
 
 ### Option B: Build with Dynamic Linking
@@ -94,7 +94,7 @@ Requires DLLs in the same folder or in PATH.
 **Compile:**
 
 ```powershell
-g++ -std=c++17 main.cpp ConfigLoader.cpp Process.cpp Scheduler.cpp ConsoleManager.cpp -o csopesy_emulator.exe
+g++ -std=c++17 main.cpp ConfigLoader.cpp Process.cpp Scheduler.cpp ConsoleManager.cpp -o os_emulator.exe
 ```
 
 **Copy required DLLs** (from MinGW-w64 bin folder):
@@ -108,7 +108,7 @@ Copy-Item C:\msys64\mingw64\bin\libwinpthread-1.dll .
 **Run:**
 
 ```powershell
-.\csopesy_emulator.exe
+.\os_emulator.exe
 ```
 
 ## Usage
