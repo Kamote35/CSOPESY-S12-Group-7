@@ -1,15 +1,66 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <sstream>
 #include <algorithm>
 #include <random>
+#include <cmath>
 #include "Global.h"
 #include "ConfigLoader.h"
 #include "Scheduler.h"
 #include "ConsoleManager.h"
-#include "MemoryManager.h"
-
+#include "MemoryManager.h" 
 
 using namespace std;
+
+// Helper: Check if integer is power of 2
+bool isPowerOfTwo(int n) {
+    return (n > 0) && ((n & (n - 1)) == 0);
+}
+
+// Helper: Parse custom instructions string "CMD arg; CMD arg"
+vector<Instruction> parseCustomInstructions(const string& code) {
+    vector<Instruction> instructions;
+    stringstream ss(code);
+    string segment;
+    
+    // Split by semicolon
+    while (getline(ss, segment, ';')) {
+        stringstream ss2(segment);
+        string cmd;
+        ss2 >> cmd;
+        
+        if (cmd.empty()) continue;
+
+        Instruction ins;
+        // Map string command to Enum
+        if (cmd == "PRINT") {
+            ins.type = InstrType::PRINT;
+            string arg; getline(ss2, arg); 
+            // trim quotes and spaces
+            size_t first = arg.find_first_not_of(" \"");
+            size_t last = arg.find_last_not_of(" \"");
+            if (first != string::npos) ins.args.push_back(arg.substr(first, (last-first+1)));
+        } else {
+            if (cmd == "DECLARE") ins.type = InstrType::DECLARE;
+            else if (cmd == "ADD") ins.type = InstrType::ADD;
+            else if (cmd == "SUBTRACT") ins.type = InstrType::SUBTRACT;
+            else if (cmd == "SLEEP") ins.type = InstrType::SLEEP;
+            else if (cmd == "READ") ins.type = InstrType::READ;
+            else if (cmd == "WRITE") ins.type = InstrType::WRITE;
+            else {
+                // If unknown, just skip. 
+                continue; 
+            }
+
+            // Parse arguments
+            string arg;
+            while (ss2 >> arg) ins.args.push_back(arg);
+        }
+        instructions.push_back(ins);
+    }
+    return instructions;
+}
 
 int main() {
     bool initialized = false;
@@ -20,58 +71,35 @@ int main() {
         cout << "root:\\> ";
         if (!getline(cin, line)) break;
         
-        // simple trim
+        // Simple trim logic
         auto l = line.find_first_not_of(" \t");
         if (l == string::npos) continue;
         line = line.substr(l, line.find_last_not_of(" \t") - l + 1);
 
         if (line == "exit") {
             Scheduler::getInstance().stopSchedulerLoop();
-            // Optional: Join all processes before quitting
             break;
         }
 
         if (!initialized) {
             if (line == "initialize") {
-                readConfig(); 
-                if (line == "initialize") {
-    readConfig();
-    // Initialize Memory Manager
-    MemoryManager::getInstance().initialize(
-        g_Config.maxOverallMem, 
-        g_Config.memPerFrame
-    );
-    initialized = true;
-}
+                readConfig();
+                // Initialize Memory Manager (Phase 1 Logic)
+                MemoryManager::getInstance().initialize(g_Config.maxOverallMem, g_Config.memPerFrame);
                 initialized = true;
-                // cout << "Processor initialized.\n"; // Removed to avoid double printing since readConfig now prints
             } else {
                 cout << "Unknown command: call 'initialize' first.\n";
             }
             continue;
         }
 
-        if (line == "scheduler-start") {
-            cout << "Starting scheduler...\n";
-            Scheduler::getInstance().startSchedulerLoop();
-            continue; 
-        }
-        if (line == "scheduler-stop") {
-            cout << "Stopping scheduler...\n";
-            Scheduler::getInstance().stopSchedulerLoop();
-            continue; 
-        }
-        if (line == "report-util") {
-            // Generates report to csopesy-log.txt
-            Scheduler::getInstance().generateReport("csopesy-log.txt");
-            cout << "Report generated at csopesy-log.txt\n";
-            continue; 
-        }
-        if (line == "screen -ls") {
-            ConsoleManager::cmdScreenList(); 
-            continue; 
-        }
+        // Standard Commands
+        if (line == "scheduler-start") { Scheduler::getInstance().startSchedulerLoop(); continue; }
+        if (line == "scheduler-stop") { Scheduler::getInstance().stopSchedulerLoop(); continue; }
+        if (line == "report-util") { Scheduler::getInstance().generateReport("csopesy-log.txt"); continue; }
+        if (line == "screen -ls") { ConsoleManager::cmdScreenList(); continue; }
 
+        // screen -r <name>
         if (line.rfind("screen -r", 0) == 0) {
             string name = line.substr(9);
             // trim name
@@ -80,16 +108,69 @@ int main() {
             continue;
         }
 
+        // ---------------------------------------------------------
+        // UPDATED: screen -s <name> <mem>
+        // ---------------------------------------------------------
         if (line.rfind("screen -s", 0) == 0) {
-            string name = line.substr(9);
-            // trim name
-            name.erase(0, name.find_first_not_of(" "));
+            stringstream ss(line);
+            string cmd, flag, name; 
+            int mem = 0;
             
-            // Generate random instructions logic for this specific process
+            // Format: screen -s name mem
+            ss >> cmd >> flag >> name >> mem;
+            
+            if (name.empty() || mem <= 0) {
+                cout << "Usage: screen -s <process_name> <memory_size>\n";
+                continue;
+            }
+            if (!isPowerOfTwo(mem)) {
+                cout << "Error: Memory must be a power of 2.\n";
+                continue;
+            }
+
+            // Generate random instructions logic
             random_device rd; mt19937 gen(rd());
             uniform_int_distribution<int> dist(g_Config.minIns, g_Config.maxIns);
             
-            Scheduler::getInstance().addProcess(name, dist(gen));
+            // Call the new addProcess overload with memory
+            Scheduler::getInstance().addProcess(name, dist(gen), mem);
+            ConsoleManager::attachToProcess(name);
+            continue;
+        }
+
+        // ---------------------------------------------------------
+        // NEW: screen -c <name> <mem> "<commands>"
+        // ---------------------------------------------------------
+        if (line.rfind("screen -c", 0) == 0) {
+            // 1. Find the quotes to separate arguments from code
+            size_t quoteStart = line.find('"');
+            if (quoteStart == string::npos || line.back() != '"') {
+                cout << "Usage: screen -c <name> <mem> \"<commands>\"\n";
+                continue;
+            }
+
+            // 2. Parse arguments before the quotes
+            string preArgs = line.substr(0, quoteStart);
+            stringstream ss(preArgs);
+            string cmd, flag, name; 
+            int mem = 0;
+            ss >> cmd >> flag >> name >> mem;
+
+            if (name.empty() || mem <= 0) {
+                cout << "Invalid arguments.\n";
+                continue;
+            }
+            if (!isPowerOfTwo(mem)) {
+                cout << "Error: Memory must be a power of 2.\n";
+                continue;
+            }
+
+            // 3. Parse code inside quotes
+            string code = line.substr(quoteStart + 1, line.length() - quoteStart - 2);
+            vector<Instruction> ins = parseCustomInstructions(code);
+            
+            // Call the custom instruction overload
+            Scheduler::getInstance().addProcess(name, ins, mem);
             ConsoleManager::attachToProcess(name);
             continue;
         }

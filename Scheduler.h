@@ -20,16 +20,19 @@ public:
         return instance;
     }
 
-    void addProcess(const std::string& name, int lines);
+    // Existing: Add process with random instructions + memory
+    void addProcess(const std::string& name, int lines, int memory);
+    
+    // New: Add process with custom instructions + memory (for screen -c)
+    void addProcess(const std::string& name, const std::vector<Instruction>& ins, int memory);
+    
     Process* getProcess(const std::string& name);
     
-    // Commands
-    void startSchedulerLoop(); // scheduler-start
-    void stopSchedulerLoop();  // scheduler-stop
+    void startSchedulerLoop(); 
+    void stopSchedulerLoop();  
     
-    // Data Access for Reports
-    void generateReport(const std::string& filename = ""); // If empty, print to screen
-    std::map<std::string, std::unique_ptr<Process>>& getProcessList(); // Use carefully
+    void generateReport(const std::string& filename = ""); 
+    std::map<std::string, std::unique_ptr<Process>>& getProcessList(); 
     std::mutex& getLock();
 };
 

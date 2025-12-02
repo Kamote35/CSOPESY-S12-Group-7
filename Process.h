@@ -17,13 +17,17 @@ private:
     bool finished;
     std::thread worker;
     std::vector<std::string> logs;
-    std::map<std::string, uint16_t> vars; // Stores uint16 variables [cite: 88]
+    std::map<std::string, uint16_t> vars; 
     std::mutex logLock;
     std::vector<Instruction> instructions;
     
     int coreAssigned;
     std::atomic<int> currentInstrIndex;
     int totalLines;
+    
+    // Memory Info
+    int memoryRequired;
+    int currentMemoryUsage; // For tracking actual usage later
     
     std::random_device rd;
     std::mt19937 gen;
@@ -33,7 +37,12 @@ private:
     std::vector<Instruction> generateRandomInstructions(int count, int depth = 0);
 
 public:
-    Process(const std::string &n, int pid, int lines);
+    // Constructor for Random Instructions (screen -s / scheduler-start)
+    Process(const std::string &n, int pid, int lines, int memReq);
+    
+    // Constructor for Custom Instructions (screen -c)
+    Process(const std::string &n, int pid, const std::vector<Instruction>& ins, int memReq);
+    
     ~Process();
 
     void start();
@@ -46,6 +55,7 @@ public:
     int getCoreAssigned() const;
     int getCurrentInstructionLine() const;
     int getTotalLines() const;
+    int getMemoryRequired() const;
     std::vector<std::string> snapshotLogs();
 };
 
