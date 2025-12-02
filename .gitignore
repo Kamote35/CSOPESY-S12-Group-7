@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Backing store files
+backing-store.txt
+csopesy-backing-store.txt
+
 # Compiled binaries
 *.exe
 *.dll
