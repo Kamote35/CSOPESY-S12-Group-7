@@ -19,7 +19,10 @@ void ConsoleManager::printHeader() {
     cout << "------------------------------------\n";
     cout << "Welcome to CSOPESY Emulator!\n\n";
     cout << "Developers:\n";
-    // ... [Add names from prototype]
+    cout << "Corpuz, Gerald Justine\n";
+    cout << "De Jesus, Andrei Zarmin\n";
+    cout << "Manaois, Chriscel John\n";
+    cout << "Sayat, John Christian\n";
     cout << "Last updated: " << __DATE__ << "\n";
     cout << "------------------------------------\n";
 }
@@ -29,15 +32,7 @@ void ConsoleManager::cmdScreenList() {
     lock_guard<mutex> lock(sched.getLock());
     auto& procList = sched.getProcessList(); 
 
-    if (procList.empty()) {
-        cout << "CPU utilization: 0%\n";
-        cout << "Cores used: 0\n";
-        cout << "Cores available: " << g_Config.numCPU << "\n";
-        cout << "------------------------------------\n";
-        cout << "(no processes)\n";
-        return;
-    }
-
+    // Check if empty (Single check only)
     if (procList.empty()) {
         cout << "CPU utilization: 0%\n";
         cout << "Cores used: 0\n";
@@ -95,7 +90,7 @@ void ConsoleManager::cmdScreenList() {
     cout << "------------------------------------\n";
 }
 
-void ConsoleManager::attachToProcess(const std::string&processName) {
+void ConsoleManager::attachToProcess(const std::string &processName) {
     Scheduler& sched = Scheduler::getInstance();
     Process* p = sched.getProcess(processName);
 

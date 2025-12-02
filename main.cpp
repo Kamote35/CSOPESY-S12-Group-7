@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <random>
 #include "Global.h"
 #include "ConfigLoader.h"
 #include "Scheduler.h"
@@ -30,9 +31,9 @@ int main() {
 
         if (!initialized) {
             if (line == "initialize") {
-                loadConfiguration();
+                readConfig(); // Updated function name
                 initialized = true;
-                cout << "Processor initialized.\n";
+                // cout << "Processor initialized.\n"; // Removed to avoid double printing since readConfig now prints
             } else {
                 cout << "Unknown command: call 'initialize' first.\n";
             }
@@ -50,8 +51,7 @@ int main() {
             continue; 
         }
         if (line == "report-util") {
-            // Generates report to csopesy-log.txt [cite: 204]
-            // You will need to implement the file writing in Scheduler::generateReport
+            // Generates report to csopesy-log.txt
             Scheduler::getInstance().generateReport("csopesy-log.txt");
             cout << "Report generated at csopesy-log.txt\n";
             continue; 
