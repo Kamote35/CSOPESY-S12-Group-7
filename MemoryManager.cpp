@@ -32,7 +32,7 @@ void MemoryManager::initialize(uint64_t maxMem, uint64_t frameSize) {
     }
 
     // Clear backing store file
-    ofstream ofs("csopesy-backing-store.txt", ios::trunc);
+    ofstream ofs("backing-store.txt", ios::trunc);
     ofs.close();
 }
 

@@ -164,6 +164,7 @@ int main() {
                 cout << "Error: Memory must be a power of 2.\n";
                 continue;
             }
+            
 
             // 3. Parse code inside quotes
             string code = line.substr(quoteStart + 1, line.length() - quoteStart - 2);
@@ -172,6 +173,59 @@ int main() {
             // Call the custom instruction overload
             Scheduler::getInstance().addProcess(name, ins, mem);
             ConsoleManager::attachToProcess(name);
+            continue;
+        }
+
+        if (line == "mem-test") {
+            cout << "Performing Memory Stress Test...\n";
+            
+            // 1. Calculate how many frames we have
+            int totalFrames = MemoryManager::getInstance().getNumFrames();
+            int frameSize = MemoryManager::getInstance().getMemPerFrame();
+            
+            cout << "Total Frames Available: " << totalFrames << "\n";
+            
+            // 2. Allocate a dummy process
+            int pid = 9999;
+            MemoryManager::getInstance().allocateProcess(pid, totalFrames * frameSize + frameSize); // Request more than RAM
+            
+            // 3. Fill up ALL RAM frames
+            for (int i = 0; i < totalFrames; ++i) {
+                int address = i * frameSize;
+                cout << "Accessing Page " << i << " (Address " << address << ")... ";
+                
+                // This should load pages into free frames
+                int frameID = MemoryManager::getInstance().checkMemory(pid, address);
+                if (frameID == -1) {
+                    MemoryManager::getInstance().handlePageFault(pid, address);
+                    cout << "Page Fault Handled.\n";
+                } else {
+                    cout << "Already in memory.\n";
+                }
+            }
+            
+            cout << "RAM should now be FULL.\n";
+            
+            // 4. Force ONE more page access (Overflow)
+            // This MUST trigger an eviction (FIFO)
+            int overflowAddr = totalFrames * frameSize;
+            cout << "Accessing Overflow Page (Address " << overflowAddr << ")... ";
+            
+            if (MemoryManager::getInstance().checkMemory(pid, overflowAddr) == -1) {
+                MemoryManager::getInstance().handlePageFault(pid, overflowAddr);
+                cout << "Page Fault Handled (Swap should have occurred).\n";
+            }
+            
+            // 5. Check Stats
+            cout << "\n--- STATS ---\n";
+            cout << "Paged In: " << MemoryManager::getInstance().getPagedIn() << "\n";
+            cout << "Paged Out (Swap): " << MemoryManager::getInstance().getPagedOut() << "\n";
+            
+            if (MemoryManager::getInstance().getPagedOut() > 0) {
+                cout << "[SUCCESS] Page replacement logic is working!\n";
+            } else {
+                cout << "[FAIL] No pages were swapped out.\n";
+            }
             continue;
         }
 
