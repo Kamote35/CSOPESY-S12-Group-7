@@ -101,7 +101,7 @@ void MemoryManager::handlePageFault(int pid, int address) {
 // ---------------------------------------------------------
 void MemoryManager::writeToBackingStore(int pid, int pageNum, const vector<char>& data) {
     // We strictly append. Reading will search for the *last* occurrence.
-    ofstream file("csopesy-backing-store.txt", ios::app);
+    ofstream file("backing-store.txt", ios::app);
     if (!file) return;
 
     file << "PID:" << pid << " Page:" << pageNum << " Data:";
@@ -113,7 +113,7 @@ void MemoryManager::writeToBackingStore(int pid, int pageNum, const vector<char>
 }
 
 vector<char> MemoryManager::readFromBackingStore(int pid, int pageNum) {
-    ifstream file("csopesy-backing-store.txt");
+    ifstream file("backing-store.txt");
     if (!file) return {};
 
     string line, lastMatch;
@@ -205,4 +205,9 @@ size_t MemoryManager::getNumPagedOut() const {
     // To get actual current swap usage, we'd scan the file or maintain a map.
     // pagedOutCount is just a counter of events.
     return pagedOutCount; 
+}
+
+size_t MemoryManager::getFreeMemory() {
+    lock_guard<mutex> lock(memLock);
+    return freeFrames.size() * memPerFrame;
 }

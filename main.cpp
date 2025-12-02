@@ -96,7 +96,7 @@ int main() {
         // Standard Commands
         if (line == "scheduler-start") { Scheduler::getInstance().startSchedulerLoop(); continue; }
         if (line == "scheduler-stop") { Scheduler::getInstance().stopSchedulerLoop(); continue; }
-        if (line == "report-util") { Scheduler::getInstance().generateReport("csopesy-log.txt"); continue; }
+        if (line == "report-util") { Scheduler::getInstance().generateReport("log.txt"); continue; }
         if (line == "screen -ls") { ConsoleManager::cmdScreenList(); continue; }
 
         // screen -r <name>
@@ -227,6 +227,9 @@ int main() {
                 cout << "[FAIL] No pages were swapped out.\n";
             }
             continue;
+        }
+        if (line == "vmstat") {
+            ConsoleManager::cmdVmstat(); continue; 
         }
 
         cout << "Unknown command.\n";
