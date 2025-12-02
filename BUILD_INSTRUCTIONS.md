@@ -2,9 +2,58 @@
 
 ## Prerequisites
 
-- **MinGW-w64 with POSIX threads** (via MSYS2 recommended)
+- **MinGW-w64 with POSIX threads** (via MSYS2)
 - G++ compiler with C++17 support
-- MSYS2 path: `C:\msys64\mingw64\bin` added to system PATH (or use full path)
+
+## Installing the Compiler (MSYS2 + MinGW-w64)
+
+### Step 1: Download MSYS2
+
+1. Go to <https://www.msys2.org/>
+2. Click the download button to get the installer (e.g., `msys2-x86_64-XXXXXXXX.exe`)
+3. Run the installer
+4. Use the default installation path: `C:\msys64`
+5. Complete the installation and launch MSYS2
+
+### Step 2: Install MinGW-w64 GCC Compiler
+
+1. Open **MSYS2 MINGW64** from the Start Menu (important: use MINGW64, not MSYS2)
+2. Update the package database:
+   ```bash
+   pacman -Syu
+   ```
+3. If prompted to close the terminal, close it and reopen **MSYS2 MINGW64**
+4. Install the C++ compiler and tools:
+   ```bash
+   pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-make
+   ```
+5. Press `Y` to confirm installation
+
+### Step 3: Add MinGW-w64 to System PATH
+
+1. Press `Win + R`, type `sysdm.cpl`, and press Enter
+2. Go to the **Advanced** tab
+3. Click **Environment Variables**
+4. Under **System variables**, find and select `Path`, then click **Edit**
+5. Click **New** and add:
+   ```
+   C:\msys64\mingw64\bin
+   ```
+6. Click **OK** on all dialogs to save
+
+### Step 4: Verify Installation
+
+1. Open a **new** PowerShell or Command Prompt window
+2. Run:
+   ```powershell
+   g++ --version
+   ```
+3. You should see output like:
+   ```
+   g++.exe (Rev8, Built by MSYS2 project) 15.x.x
+   ```
+
+If you see the version, the compiler is ready!
 
 ## Files Required
 
