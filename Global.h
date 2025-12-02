@@ -6,7 +6,7 @@
 #include <cstdint>
 
 // Instruction Types as per spec 
-enum class InstrType { PRINT, DECLARE, ADD, SUBTRACT, SLEEP, FOR };
+enum class InstrType { PRINT, DECLARE, ADD, SUBTRACT, SLEEP, FOR, READ, WRITE };
 
 struct Instruction {
     InstrType type;
@@ -17,6 +17,7 @@ struct Instruction {
 
 // Global Configuration object
 struct SystemConfig {
+    // CPU / Scheduler Configs
     int numCPU = 4;
     std::string schedulerType = "rr";
     int quantumCycles = 5;
@@ -24,6 +25,12 @@ struct SystemConfig {
     int minIns = 100;
     int maxIns = 1000;
     uint64_t delayPerExec = 0;
+
+    // Memory Configs (MCO2)
+    uint64_t maxOverallMem = 16384; 
+    uint64_t memPerFrame = 4096;
+    uint64_t minMemPerProc = 4096; 
+    uint64_t maxMemPerProc = 4096;
 };
 
 extern SystemConfig g_Config; // Global instance declaration

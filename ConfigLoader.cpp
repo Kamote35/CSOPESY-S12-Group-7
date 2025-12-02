@@ -35,6 +35,11 @@ void readConfig() {
         cout << "  min-ins = " << g_Config.minIns << "\n";
         cout << "  max-ins = " << g_Config.maxIns << "\n";
         cout << "  delay-per-exec = " << g_Config.delayPerExec << "\n";
+        // New Memory Defaults
+        cout << "  max-overall-mem = " << g_Config.maxOverallMem << "\n";
+        cout << "  mem-per-frame = " << g_Config.memPerFrame << "\n";
+        cout << "  min-mem-per-proc = " << g_Config.minMemPerProc << "\n";
+        cout << "  max-mem-per-proc = " << g_Config.maxMemPerProc << "\n";
         cout << "----------------------------------------\n";
         return;
     }
@@ -89,7 +94,20 @@ void readConfig() {
             } else if (key == "delay-per-exec" || key == "delayperexec") {
                 uint64_t v = stoull(value);
                 g_Config.delayPerExec = v;
+            } 
+            // ---------------------------------------------------------
+            // NEW LOGIC: Parsing Memory Parameters
+            // ---------------------------------------------------------
+            else if (key == "max-overall-mem") {
+                g_Config.maxOverallMem = stoull(value);
+            } else if (key == "mem-per-frame") {
+                g_Config.memPerFrame = stoull(value);
+            } else if (key == "min-mem-per-proc") {
+                g_Config.minMemPerProc = stoull(value);
+            } else if (key == "max-mem-per-proc") {
+                g_Config.maxMemPerProc = stoull(value);
             }
+
         } catch (...) {
             cout << "Invalid config entry ignored: " << line << "\n";
         }
@@ -111,6 +129,11 @@ void readConfig() {
     cout << "  min-ins = " << g_Config.minIns << "\n";
     cout << "  max-ins = " << g_Config.maxIns << "\n";
     cout << "  delay-per-exec = " << g_Config.delayPerExec << "\n";
+    // Print new memory configs
+    cout << "  max-overall-mem = " << g_Config.maxOverallMem << "\n";
+    cout << "  mem-per-frame = " << g_Config.memPerFrame << "\n";
+    cout << "  min-mem-per-proc = " << g_Config.minMemPerProc << "\n";
+    cout << "  max-mem-per-proc = " << g_Config.maxMemPerProc << "\n";
     cout << "----------------------------------------\n";
 
     g_configLoaded = true;

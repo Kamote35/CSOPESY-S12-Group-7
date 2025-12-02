@@ -6,6 +6,8 @@
 #include "ConfigLoader.h"
 #include "Scheduler.h"
 #include "ConsoleManager.h"
+#include "MemoryManager.h"
+
 
 using namespace std;
 
@@ -31,7 +33,16 @@ int main() {
 
         if (!initialized) {
             if (line == "initialize") {
-                readConfig(); // Updated function name
+                readConfig(); 
+                if (line == "initialize") {
+    readConfig();
+    // Initialize Memory Manager
+    MemoryManager::getInstance().initialize(
+        g_Config.maxOverallMem, 
+        g_Config.memPerFrame
+    );
+    initialized = true;
+}
                 initialized = true;
                 // cout << "Processor initialized.\n"; // Removed to avoid double printing since readConfig now prints
             } else {
